@@ -1,25 +1,23 @@
-package com.redhat.qe.auto.testng;
+package com.redhat.qe.auto.bugzilla;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import org.apache.xmlrpc.XmlRpcException;
 
-import tcms.API.Session;
-import tcms.API.TestopiaObject;
+import com.redhat.qe.xmlrpc.BaseObject;
+import com.redhat.qe.xmlrpc.Session;
+
+
 
 /**
  * Example code to retrieve a bugzilla bug's status, given its ID.  This is for future use with testng, 
@@ -169,7 +167,7 @@ public class BzChecker {
 		}
 		return list.toArray(new bzState[] {});
 	}
-	public class Bug extends TestopiaObject{
+	public class Bug extends BaseObject{
 		private String BZ_URL;
         private Map<String,Object> buglist;
 		//private StringAttribute bug_status = newStringAttribute("bug_status", null);
