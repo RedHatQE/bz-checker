@@ -202,8 +202,8 @@ public class BzChecker {
 		public Map<String, Object> getBug(String bugId) throws XmlRpcException{
             Object bug = null;
             if ( System.getProperty("bugzilla.cache", "false").equals( "true" ) ) {
-                log.info( "Cache hit" );
                 bug = buglist.get(bugId);
+                if (bug!=null) log.finer("Using cached bugzilla "+bugId);
             }
             if ( bug == null ) {
                 bug = this.callXmlrpcMethod("bugzilla.getBug", bugId);
