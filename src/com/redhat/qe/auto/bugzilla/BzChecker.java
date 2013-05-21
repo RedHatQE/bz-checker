@@ -72,7 +72,7 @@ public class BzChecker {
 	}
 	
 	public bzState getBugState(String bugId) throws XmlRpcException{
-		return bzState.valueOf(getBugField(bugId, "bug_status").toString());
+		return bzState.valueOf(getBugField(bugId, "status").toString());
 	}
 	
 	public Object getBugField(String bugId, String fieldId) throws XmlRpcException{
@@ -169,12 +169,12 @@ public class BzChecker {
 	}
 	public class Bug extends BaseObject{
 		private String BZ_URL;
-        private Map<String,Object> buglist;
+        private Map<String,Map> buglist;
 		//private StringAttribute bug_status = newStringAttribute("bug_status", null);
 		
 		public Bug(){
 			listMethod = "Bug.get_bugs";
-            buglist = new HashMap<String,Object>();
+            buglist = new HashMap<String,Map>();
 			//System.setProperty("bugzilla.url", "https://bugzilla.redhat.com/bugzilla/xmlrpc.cgi");
 			//System.setProperty("bugzilla.url", "https://bz-web2-test.devel.redhat.com/bugzilla/xmlrpc.cgi");
 		}
@@ -200,13 +200,17 @@ public class BzChecker {
 		}
 		
 		public Map<String, Object> getBug(String bugId) throws XmlRpcException{
-            Object bug = null;
+            Map bug = null;
             if ( System.getProperty("bugzilla.cache", "false").equals( "true" ) ) {
                 bug = buglist.get(bugId);
                 if (bug!=null) log.finer("Using cached bugzilla "+bugId);
             }
             if ( bug == null ) {
-                bug = this.callXmlrpcMethod("bugzilla.getBug", bugId);
+                Map<String,Object> ids = new HashMap<String,Object>();
+                ids.put("ids", bugId);
+                Map map = (Map) this.callXmlrpcMethod("Bug.get", ids);
+                Object[] oarray = (Object[])map.get("bugs");
+                bug = (Map)oarray[0];
                 buglist.put(bugId,bug);
             }
             return (Map) bug;
