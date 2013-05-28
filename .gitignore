@@ -1,0 +1,27 @@
+.project
+.classpath
+.lein-deps-sum
+.pydevproject
+pom.xml
+bin
+classes
+checkouts
+test-output
+target
+lib
+tmp/*
+*.pyc
+
+## editor files
+*~
+\#*
+.\#*
+*.swp
+*.swo
+
+## for plugin settings like counter-clockwise
+.settings
+
+## ssh key files
+.ssh/id_auto_dsa
+.ssh/id_auto_dsa.pub
