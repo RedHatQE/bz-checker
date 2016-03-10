@@ -2,6 +2,6 @@
   :description "a small library to check the status of a bugzilla bug."
   :java-source-path "src" ;; lein1
   :java-source-paths ["src"]
-  :dependencies [[com.redhat.qe/xmlrpc-client-tools "1.0.4"]]
+  :dependencies [[com.redhat.qe/xmlrpc-client-tools "1.0.5"]]
   :plugins [[lein2-eclipse "2.0.0"]]
-  :javac-options {:debug "on"})
+  :javac-options ["-target" "1.6" "-source" "1.6"])
