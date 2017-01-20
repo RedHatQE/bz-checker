@@ -22,7 +22,7 @@ import com.redhat.qe.auto.bugzilla.BugzillaAPI;
 import com.google.inject.Inject;
 
 /**
- * Example code to retrieve a bugzilla bug's status, given its ID.  This is for future use with testng, 
+ * Example code to retrieve a bugzilla bug's status, given its ID.  This is for future use with testng,
  * so that testng can decide whether to execute a test, based on the group annotation (which may contain
  * a bug id), and the status of that bug.  If the status is ON_QA, for example, it can be tested.<br>
  * Example Usage: if (BzChecker.getInstance().getBugState("12345") == BugzillaAPI.bzState.ON_QA) {...
@@ -44,8 +44,8 @@ public class BzChecker {
 
   @Inject
   BzChecker(BugzillaAPI bug){
-      this.bug = bug;
-      init();
+    this.bug = bug;
+    init();
   }
 
   private void init() {
@@ -67,7 +67,7 @@ public class BzChecker {
 	public BugzillaAPI.bzState getBugState(String bugId) throws Exception{
 		return BugzillaAPI.bzState.valueOf(getBugField(bugId, "status").toString());
 	}
-	
+
 	public Object getBugField(String bugId, String fieldId) throws Exception{
 		/*Object[] bugs = null;
 		try {
@@ -81,7 +81,7 @@ public class BzChecker {
 		else {
 			Object thisbug = bugs[0];
 			Map bmap = (Map)thisbug;
-			
+
 			log.finer("Found bug: " + thisbug.toString() );
 			Map internals = (Map)bmap.get("internals");
 			Object fieldValue = internals.get(fieldId);
@@ -90,7 +90,7 @@ public class BzChecker {
 		}*/
 		return bug.getBug(bugId).get(fieldId);
 	}
-	
+
 	public void setBugState(String bugId, BugzillaAPI.bzState state) {
 		try {
 			bug.update_bug_status(bugId, state);
@@ -107,23 +107,23 @@ public class BzChecker {
 			throw new RuntimeException("Could not log in to bugzilla as " + userid ,e);
 		}
 	}
-	
+
 	public void addComment(String bugId, String comment){
 		try {
 			bug.add_bug_comment(bugId, comment);
 		}
 		catch(Exception e){
 			throw new RuntimeException("Could not add comment to bug " + bugId ,e);
-		}	
+		}
 	}
-	
+
 	public void addKeywords(String bugId, String... keywords){
 		editKeywords(bugId, true, keywords);
 	}
 	public void deleteKeywords(String bugId, String... keywords){
 		editKeywords(bugId, true, keywords);
 	}
-	
+
 	protected void editKeywords(String bugId, boolean add, String... keywords){
 		try {
 			Map<String,Object> updates = new HashMap<String,Object>();
@@ -132,9 +132,9 @@ public class BzChecker {
 		}
 		catch(Exception e){
 			throw new RuntimeException("Could not " + (add? "add":"remove") + " keywords for bug " + bugId ,e);
-		}	
+		}
 	}
-	
+
 	/**
 	 * @param bugId
 	 * @return
@@ -144,14 +144,14 @@ public class BzChecker {
 	 */
 	public boolean isBugOpen(String bugId) throws Exception {
 		BugzillaAPI.bzState state = getBugState(bugId);
-		
+
 		for (BugzillaAPI.bzState fixedBugState: fixedBugStates) {
 			if (state.equals(fixedBugState)) return false;
 		}
 		return true;
 	}
-	
-	
+
+
 	protected BugzillaAPI.bzState[] extractStates(String states) {
 		String[] splits = states.split(",");
 		List<BugzillaAPI.bzState> list = new ArrayList<BugzillaAPI.bzState>();
