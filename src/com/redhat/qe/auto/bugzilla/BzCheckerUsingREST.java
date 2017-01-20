@@ -10,7 +10,7 @@ import com.redhat.qe.auto.bugzilla.BzChecker;
 
 public class BzCheckerUsingREST {
 
-    public BzCheckerUsingREST(){
-        System.out.println("ahoj");
-    };
+  public BzCheckerUsingREST(){
+    System.out.println("ahoj");
+  };
 }
