@@ -48,7 +48,7 @@ public class BzChecker {
       init();
   }
 
-  private synchronized void init() {
+  private void init() {
 		try {
       bug.connectBZ();
 
