@@ -41,11 +41,11 @@ public class BzChecker {
 			BugzillaAPI.bzState.POST,
 			BugzillaAPI.bzState.CLOSED };
 	protected static BugzillaAPI.bzState[] fixedBugStates;
-	protected static BzChecker instance = null;
 
   @Inject
   BzChecker(BugzillaAPI bug){
       this.bug = bug;
+      init();
   }
 
   private synchronized void init() {
