@@ -99,8 +99,6 @@ public class XMLRPC_API extends BaseObject implements BugzillaAPI {
         main.put("updates", updates);
         main.put("ids", Integer.parseInt(bug_id));
         Map map = (Map) this.callXmlrpcMethod("Bug.update", main);
-
-        //System.out.println(map);
         return map;
 		}
 
