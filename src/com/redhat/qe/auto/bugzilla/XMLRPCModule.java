@@ -12,15 +12,18 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 public class XMLRPCModule extends AbstractModule {
-    @Override
-    protected void configure(){
-        /* We can use XMLRPC_API class in every place where
-           BugzillaAPI implementation is needed. */
-        bind(BugzillaAPI.class).to(XMLRPC_API.class).in(Singleton.class);
-    }
-    public void  main() throws Exception {
-        Injector injector = Guice.createInjector(new XMLRPCModule());
-        BzChecker checker = injector.getInstance(BzChecker.class);
-        System.out.println(checker.getBugState("1"));
-    }
+
+  @Override
+  protected void configure(){
+    /* We can use XMLRPC_API class in every place where
+       BugzillaAPI implementation is needed. */
+    bind(BugzillaAPI.class).to(XMLRPC_API.class).in(Singleton.class);
+  }
+
+
+  public void  main() throws Exception {
+    Injector injector = Guice.createInjector(new XMLRPCModule());
+    BzChecker checker = injector.getInstance(BzChecker.class);
+    System.out.println(checker.getBugState("1"));
+  }
 }
