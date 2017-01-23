@@ -1,4 +1,4 @@
-BzChecker is a small shuttle that helps us to communicate with Bugzilla.
+BzChecker is a small utility that helps us to communicate with Bugzilla.
 It uses Google Guice injection.
 
 # How to run tests with clojure boot
