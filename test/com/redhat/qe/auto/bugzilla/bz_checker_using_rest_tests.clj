@@ -7,7 +7,7 @@
             BzChecker
             BugzillaAPI
             BugzillaAPI$bzState
-            XMLRPCModule]
+            RESTModule]
            [com.google.inject Guice]))
 
 (def injector (atom nil))
@@ -16,8 +16,14 @@
                       (let [properties (p/load-from (io/file (System/getProperty "user.home") "automation.properties.bugzilla.rest.testing"))]
                         (doseq [[k v] properties]
                           (System/setProperty k v)))
+                      (reset! injector (Guice/createInjector [(new RESTModule)]))
                       (f)))
 
 (deftest bz-checker-using-rest-test
-  (let [checker (new BzCheckerUsingREST)]
-    (is (= 1 1))))
+  (let [checker (.getInstance @injector BzChecker)]
+    (is (= BugzillaAPI$bzState/CLOSED (.getBugState checker "1")))
+    (is (= "CLOSED" (.getBugField checker "1" "status")))
+    (is (= "Bugzilla" (.getBugField checker "1" "product") ))
+    (is (= "bugzilla@redhat.com" (.getBugField checker "1" "qa_contact")))
+    (is (= #{"Reopened" "TestCaseApproved" "TestCaseRejected"}
+           (into #{} (.getBugField checker "1" "keywords"))))))
