@@ -15,7 +15,7 @@ It uses Google Guice injection.
 
         lein test
 
-# If you want to see how google guice injection is started
+# If you want to see how injection is initialized
 
 * for java see `main()` method in module `XMLRPCModule` or `RESTModule`
    - see `src/com/redhat/qe/auto/bugzilla/XMLRPCModule.java`
