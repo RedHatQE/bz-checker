@@ -38,7 +38,6 @@ public class XMLRPC_API extends BaseObject implements BugzillaAPI {
   public void connectBZ() throws Exception{
     BZ_URL = System.getProperty("bugzilla.url");
     session = new Session(System.getProperty("bugzilla.login"), System.getProperty("bugzilla.password"), new URL(BZ_URL));
-    
     session.init();
     // initiate a login here because some bugzilla projects (e.g. Cloud Enablement Tools) are not anonymously
     // readable which will result in org.apache.xmlrpc.XmlRpcException: You are not authorized to access bug #
