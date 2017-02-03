@@ -15,7 +15,7 @@ interface BugzillaAPI {
 
   Object[] getBugs(String name, Object value) throws Exception;
 
-  Object[] getBugs(Map<String, Object> values) throws Exception;;
+  Object[] getBugs(Map<String, Object> values) throws Exception;
 
   Map update_bug_status(String bug_id, bzState newState) throws Exception;
 
