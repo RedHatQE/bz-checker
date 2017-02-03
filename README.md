@@ -17,11 +17,11 @@ It uses Google Guice injection.
 
 # If you want to see how google guice injection is started
 
-* for java see main() method in module `XMLRPCModule` or `RESTModule`
+* for java see `main()` method in module `XMLRPCModule` or `RESTModule`
    - see `src/com/redhat/qe/auto/bugzilla/XMLRPCModule.java`
    - or  `src/com/redhat/qe/auto/bugzilla/RESTModule.java`
    
-* for clojure see =use-fixtures= method in any clojure test file
+* for clojure see `use-fixtures` method in any clojure test file
    - `test/com/redhat/qe/auto/bugzilla/bz_checker_using_xmlrpc_tests.clj`
    - `test/com/redhat/qe/auto/bugzilla/bz_checker_using_rest_tests.clj`
    - `test/com/redhat/qe/auto/bugzilla/rest_api_implementation_tests.clj`
