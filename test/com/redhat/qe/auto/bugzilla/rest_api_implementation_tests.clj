@@ -27,8 +27,8 @@
 (deftest get-bug-test
   (let [api (new REST_API)]
     (.connectBZ api)
-    (let [bug (.getBug api "1")
-          bug-without-comments (dissoc (into {} bug) "comments")]
+    (let [bug (into {} (.getBug api "1"))
+          bug-without-comments (dissoc bug "comments")]
       (is (= {"status" "ASSIGNED"
               "product" "Bugzilla"
               "keywords" ["Reopened" "TestCaseApproved" "TestCaseRejected"]
