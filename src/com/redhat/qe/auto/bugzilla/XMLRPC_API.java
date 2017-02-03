@@ -23,6 +23,8 @@ import com.redhat.qe.auto.bugzilla.BugzillaAPI;
 
 
 public class XMLRPC_API extends BaseObject implements BugzillaAPI {
+	protected static Logger log = Logger.getLogger(XMLRPC_API.class.getName());
+
   private String BZ_URL;
   private Map<String,Map> buglist;
 
