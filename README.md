@@ -33,3 +33,12 @@ You can do that this way:
       sudo keytool -import -trustcacerts -keystore /etc/pki/java/cacerts \
                    -storepass changeit -noprompt -alias mycert \
                    -file trusted-certificate.crt 
+
+
+# ToDo
+
+* `REST_API.java` methods:
+   - `getBugs`
+   - `update_bug_status`
+   - `update_bug`
+   - `add_bug_comment`
