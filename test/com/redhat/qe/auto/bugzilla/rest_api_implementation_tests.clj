@@ -32,4 +32,9 @@
       (is (= {"status" "ASSIGNED"
               "product" "Bugzilla"
               "keywords" ["Reopened" "TestCaseApproved" "TestCaseRejected"]
-              "qa_contact" "bugzilla@redhat.com"} bug-without-comments)))))
+              "qa_contact" "bugzilla@redhat.com"} bug-without-comments))
+
+      (let [comments (get bug "comments")
+            commentary (first comments)]
+        (is (= false (get commentary "is_private")))
+        (is (= "test bug" (get commentary "text")))))))
