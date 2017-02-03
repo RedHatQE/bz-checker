@@ -21,9 +21,10 @@
 
 (deftest bz-checker-using-rest-test
   (let [checker (.getInstance @injector BzChecker)]
-    (is (= BugzillaAPI$bzState/CLOSED (.getBugState checker "1")))
-    (is (= "CLOSED" (.getBugField checker "1" "status")))
+    (is (= BugzillaAPI$bzState/ASSIGNED (.getBugState checker "1")))
+    (is (= "ASSIGNED" (.getBugField checker "1" "status")))
     (is (= "Bugzilla" (.getBugField checker "1" "product") ))
     (is (= "bugzilla@redhat.com" (.getBugField checker "1" "qa_contact")))
     (is (= #{"Reopened" "TestCaseApproved" "TestCaseRejected"}
-           (into #{} (.getBugField checker "1" "keywords"))))))
+           (into #{} (.getBugField checker "1" "keywords"))))
+    (is (= true (.isBugOpen checker "1")))))

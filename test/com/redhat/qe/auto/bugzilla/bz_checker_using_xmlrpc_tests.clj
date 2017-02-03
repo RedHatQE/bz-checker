@@ -29,4 +29,5 @@
     (is (= "Bugzilla" (.getBugField checker "1" "product") ))
     (is (= "bugzilla@redhat.com" (.getBugField checker "1" "qa_contact")))
     (is (= #{"Reopened" "TestCaseApproved" "TestCaseRejected"}
-           (into #{} (.getBugField checker "1" "keywords"))))))
+           (into #{} (.getBugField checker "1" "keywords"))))
+    (is (= false (.isBugOpen checker "1")))))
