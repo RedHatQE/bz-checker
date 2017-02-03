@@ -131,52 +131,37 @@ public class REST_API implements BugzillaAPI {
    */
   public Object[] getBugs(Map<String, Object> values) throws Exception
   {
-    // //some Testopia objects have no listing mechanism
-    // if(listMethod == null)
-    //   return null;
-
-    // Map map = (Map) this.callXmlrpcMethod(listMethod, values);
-    // return (Object[])map.get("bugs");
-    // //return result;
-    return null;
+    throw new Exception("not implemented yet");
+    //return null;
   }
 
 
   public Object[] getBugs(String name, Object value) throws Exception {
-    Map<String, Object> map = new HashMap<String, Object>();
-    map.put(name, value);
-    return getBugs(map);
+    throw new Exception("not implemented yet");
+    // Map<String, Object> map = new HashMap<String, Object>();
+    // map.put(name, value);
+    // return getBugs(map);
   }
 
 
   public Map update_bug_status(String bug_id, BugzillaAPI.bzState newState) throws Exception{
-    Map<String,Object> updates = new HashMap<String,Object>();
-    updates.put("bug_status", newState.toString());
-    return update_bug(bug_id, updates);
+    throw new Exception("not implemented yet");
+    // Map<String,Object> updates = new HashMap<String,Object>();
+    // updates.put("bug_status", newState.toString());
+    // return update_bug(bug_id, updates);
   }
 
 
   public Map update_bug(String bug_id, Map<String,Object> updates)throws Exception{
-    // Map<String,Object> main = new HashMap<String,Object>();
-    // main.put("updates", updates);
-    // main.put("ids", Integer.parseInt(bug_id));
-    // Map map = (Map) this.callXmlrpcMethod("Bug.update", main);
-    Map map = new HashMap<String,Object>();
-    return map;
+    throw new Exception("not implemented yet");
+    // Map map = new HashMap<String,Object>();
+    // return map;
   }
 
 
   public Map add_bug_comment(String bug_id, String comment) throws Exception{
-    //Map<String,Object> main = new HashMap<String,Object>();
-
-
-    // main.put("id", Integer.parseInt(bug_id));
-    // main.put("comment", comment);
-    // Map map = (Map) this.callXmlrpcMethod("Bug.add_comment", main);
-    // //Map map = (Map) this.callXmlrpcMethod("bug.add_comment", Integer.parseInt(bug_id), comment);
-
-    // //System.out.println(map);
-    Map<String,Object> map = new HashMap<String,Object>();
-    return map;
+    throw new Exception("not implemented yet");
+    // Map<String,Object> map = new HashMap<String,Object>();
+    // return map;
   }
 }
