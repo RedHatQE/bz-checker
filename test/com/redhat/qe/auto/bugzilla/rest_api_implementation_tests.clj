@@ -5,9 +5,8 @@
             [clojure.java.io :as io])
   (:import [com.redhat.qe.auto.bugzilla
             BzChecker
-            BugzillaAPI
             REST_API
-            BugzillaAPI$bzState
+            IBugzillaAPI$bzState
             RESTModule]
            [com.google.inject Guice])
   )
@@ -29,7 +28,7 @@
     (.connectBZ api)
     (let [bug (into {} (.getBug api "1"))
           bug-without-comments (dissoc bug "comments")]
-      (is (= {"status" "ASSIGNED"
+      (is (= {"status" "CLOSED"
               "product" "Bugzilla"
               "keywords" ["Reopened" "TestCaseApproved" "TestCaseRejected"]
               "qa_contact" "bugzilla@redhat.com"} bug-without-comments))

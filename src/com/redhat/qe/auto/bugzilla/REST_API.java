@@ -24,14 +24,14 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import com.redhat.qe.auto.bugzilla.BugzillaAPI;
+import com.redhat.qe.auto.bugzilla.IBugzillaAPI;
 import org.apache.http.util.EntityUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-public class REST_API implements BugzillaAPI {
+public class REST_API implements IBugzillaAPI {
 	protected static Logger log = Logger.getLogger(REST_API.class.getName());
 
   private Map<String,Map> buglist;
@@ -144,7 +144,7 @@ public class REST_API implements BugzillaAPI {
   }
 
 
-  public Map update_bug_status(String bug_id, BugzillaAPI.bzState newState) throws Exception{
+  public Map update_bug_status(String bug_id, IBugzillaAPI.bzState newState) throws Exception{
     throw new Exception("not implemented yet");
     // Map<String,Object> updates = new HashMap<String,Object>();
     // updates.put("bug_status", newState.toString());

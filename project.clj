@@ -1,4 +1,4 @@
-(defproject com.redhat.qe/bz-checker "1.1.0-SNAPSHOT"
+(defproject com.redhat.qe/bz-checker "2.0.1-SNAPSHOT"
   :description "a small library to check the status of a bugzilla bug."
   :java-source-path "src" ;; lein1
   :java-source-paths ["src"]

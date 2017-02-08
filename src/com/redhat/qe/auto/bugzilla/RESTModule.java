@@ -4,8 +4,8 @@ import java.lang.Exception;
 
 /* Guice module for using REST_API as Bugzilla API for BzChecker */
 import com.redhat.qe.auto.bugzilla.BzChecker;
+import com.redhat.qe.auto.bugzilla.IBugzillaAPI;
 import com.redhat.qe.auto.bugzilla.REST_API;
-import com.redhat.qe.auto.bugzilla.BugzillaAPI;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -17,7 +17,7 @@ public class RESTModule extends AbstractModule {
   protected void configure(){
     /* We can use REST_API class in every place where
        BugzillaAPI implementation is needed. */
-    bind(BugzillaAPI.class).to(REST_API.class).in(Singleton.class);
+    bind(IBugzillaAPI.class).to(REST_API.class).in(Singleton.class);
   }
 
 

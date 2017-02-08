@@ -7,8 +7,7 @@
             [clojure.reflect :as r])
   (:import [com.redhat.qe.auto.bugzilla
             BzChecker
-            BugzillaAPI
-            BugzillaAPI$bzState
+            IBugzillaAPI$bzState
             XMLRPCModule]
            [com.google.inject Guice]))
 
@@ -24,7 +23,7 @@
 
 (deftest bz-checker-main-get-methods-test
   (let [checker (.getInstance @injector BzChecker)]
-    (is (= BugzillaAPI$bzState/CLOSED (.getBugState checker "1")))
+    (is (= IBugzillaAPI$bzState/CLOSED (.getBugState checker "1")))
     (is (= "CLOSED" (.getBugField checker "1" "status")))
     (is (= "Bugzilla" (.getBugField checker "1" "product") ))
     (is (= "bugzilla@redhat.com" (.getBugField checker "1" "qa_contact")))

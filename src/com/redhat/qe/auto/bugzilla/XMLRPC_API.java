@@ -19,10 +19,10 @@ import org.apache.xmlrpc.XmlRpcException;
 import com.redhat.qe.xmlrpc.BaseObject;
 import com.redhat.qe.xmlrpc.Session;
 
-import com.redhat.qe.auto.bugzilla.BugzillaAPI;
+import com.redhat.qe.auto.bugzilla.IBugzillaAPI;
 
 
-public class XMLRPC_API extends BaseObject implements BugzillaAPI {
+public class XMLRPC_API extends BaseObject implements IBugzillaAPI {
 	protected static Logger log = Logger.getLogger(XMLRPC_API.class.getName());
 
   private String BZ_URL;
@@ -96,7 +96,7 @@ public class XMLRPC_API extends BaseObject implements BugzillaAPI {
   }
 
 
-  public Map update_bug_status(String bug_id, BugzillaAPI.bzState newState) throws Exception{
+  public Map update_bug_status(String bug_id, IBugzillaAPI.bzState newState) throws Exception{
     Map<String,Object> updates = new HashMap<String,Object>();
     updates.put("bug_status", newState.toString());
     return update_bug(bug_id, updates);

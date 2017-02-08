@@ -17,7 +17,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import com.redhat.qe.xmlrpc.BaseObject;
 import com.redhat.qe.xmlrpc.Session;
 
-import com.redhat.qe.auto.bugzilla.BugzillaAPI;
+import com.redhat.qe.auto.bugzilla.IBugzillaAPI;
 
 import com.google.inject.Inject;
 
@@ -25,25 +25,25 @@ import com.google.inject.Inject;
  * Example code to retrieve a bugzilla bug's status, given its ID.  This is for future use with testng,
  * so that testng can decide whether to execute a test, based on the group annotation (which may contain
  * a bug id), and the status of that bug.  If the status is ON_QA, for example, it can be tested.<br>
- * Example Usage: if (BzChecker.getInstance().getBugState("12345") == BugzillaAPI.bzState.ON_QA) {...
+ * Example Usage: if (BzChecker.getInstance().getBugState("12345") == IBugzillaAPI.bzState.ON_QA) {...
  * @author weissj
  *
  */
 public class BzChecker {
 	protected static Logger log = Logger.getLogger(BzChecker.class.getName());
 
-  private final BugzillaAPI bug;
+  private final IBugzillaAPI bug;
 
-	protected static BugzillaAPI.bzState[] defaultFixedBugStates = new BugzillaAPI.bzState[] {
-			BugzillaAPI.bzState.ON_QA,
-			BugzillaAPI.bzState.VERIFIED,
-			BugzillaAPI.bzState.RELEASE_PENDING,
-			BugzillaAPI.bzState.POST,
-			BugzillaAPI.bzState.CLOSED };
-	protected static BugzillaAPI.bzState[] fixedBugStates;
+	protected static IBugzillaAPI.bzState[] defaultFixedBugStates = new IBugzillaAPI.bzState[] {
+			IBugzillaAPI.bzState.ON_QA,
+			IBugzillaAPI.bzState.VERIFIED,
+			IBugzillaAPI.bzState.RELEASE_PENDING,
+			IBugzillaAPI.bzState.POST,
+			IBugzillaAPI.bzState.CLOSED };
+	protected static IBugzillaAPI.bzState[] fixedBugStates;
 
   @Inject
-  BzChecker(BugzillaAPI bug){
+  BzChecker(IBugzillaAPI bug){
     this.bug = bug;
     init();
   }
@@ -64,8 +64,8 @@ public class BzChecker {
 		}
 	}
 
-	public BugzillaAPI.bzState getBugState(String bugId) throws Exception{
-		return BugzillaAPI.bzState.valueOf(getBugField(bugId, "status").toString());
+	public IBugzillaAPI.bzState getBugState(String bugId) throws Exception{
+		return IBugzillaAPI.bzState.valueOf(getBugField(bugId, "status").toString());
 	}
 
 	public Object getBugField(String bugId, String fieldId) throws Exception{
@@ -91,7 +91,7 @@ public class BzChecker {
 		return bug.getBug(bugId).get(fieldId);
 	}
 
-	public void setBugState(String bugId, BugzillaAPI.bzState state) {
+	public void setBugState(String bugId, IBugzillaAPI.bzState state) {
 		try {
 			bug.update_bug_status(bugId, state);
 		}
@@ -143,21 +143,21 @@ public class BzChecker {
 	 * @throws XmlRpcException - when the bug state cannot be determined.
 	 */
 	public boolean isBugOpen(String bugId) throws Exception {
-		BugzillaAPI.bzState state = getBugState(bugId);
+		IBugzillaAPI.bzState state = getBugState(bugId);
 
-		for (BugzillaAPI.bzState fixedBugState: fixedBugStates) {
+		for (IBugzillaAPI.bzState fixedBugState: fixedBugStates) {
 			if (state.equals(fixedBugState)) return false;
 		}
 		return true;
 	}
 
 
-	protected BugzillaAPI.bzState[] extractStates(String states) {
+	protected IBugzillaAPI.bzState[] extractStates(String states) {
 		String[] splits = states.split(",");
-		List<BugzillaAPI.bzState> list = new ArrayList<BugzillaAPI.bzState>();
+		List<IBugzillaAPI.bzState> list = new ArrayList<IBugzillaAPI.bzState>();
 		for (String state: splits) {
-			list.add(BugzillaAPI.bzState.valueOf(state.trim().toUpperCase()));
+			list.add(IBugzillaAPI.bzState.valueOf(state.trim().toUpperCase()));
 		}
-		return list.toArray(new BugzillaAPI.bzState[] {});
+		return list.toArray(new IBugzillaAPI.bzState[] {});
 	}
 }
