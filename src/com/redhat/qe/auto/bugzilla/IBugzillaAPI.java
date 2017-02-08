@@ -3,7 +3,7 @@ package com.redhat.qe.auto.bugzilla;
 import java.util.Map;
 import java.lang.Exception;
 
-interface BugzillaAPI {
+interface IBugzillaAPI {
 
   public enum bzState { NEW, ASSIGNED, MODIFIED, ON_DEV, ON_QA, VERIFIED, FAILS_QA, RELEASE_PENDING, POST, CLOSED };
 
