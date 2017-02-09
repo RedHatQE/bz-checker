@@ -7,7 +7,7 @@ import java.util.Map;
 interface IBugzillaAPI {
 
   public enum bzState { NEW, ASSIGNED, MODIFIED, ON_DEV, ON_QA, VERIFIED, FAILS_QA, RELEASE_PENDING, POST, CLOSED };
-o
+  
   void connectBZ() throws BugzillaAPIException;
 
   public int login(String userid, String password) throws BugzillaAPIException;
