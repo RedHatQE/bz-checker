@@ -1,21 +1,13 @@
 package com.redhat.qe.auto.bugzilla;
 
 
-import java.io.IOException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import org.apache.xmlrpc.XmlRpcException;
-
-import com.redhat.qe.xmlrpc.BaseObject;
-import com.redhat.qe.xmlrpc.Session;
 
 import com.redhat.qe.auto.bugzilla.IBugzillaAPI;
 
