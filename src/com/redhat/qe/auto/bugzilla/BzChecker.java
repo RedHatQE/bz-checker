@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.apache.xmlrpc.XmlRpcException;
 
 import com.redhat.qe.auto.bugzilla.IBugzillaAPI;
+import com.redhat.qe.auto.bugzilla.BugzillaAPIException;
 
 import com.google.inject.Inject;
 
@@ -56,11 +56,11 @@ public class BzChecker {
 		}
 	}
 
-	public IBugzillaAPI.bzState getBugState(String bugId) throws Exception{
+	public IBugzillaAPI.bzState getBugState(String bugId) throws BugzillaAPIException{
 		return IBugzillaAPI.bzState.valueOf(getBugField(bugId, "status").toString());
 	}
 
-	public Object getBugField(String bugId, String fieldId) throws Exception{
+	public Object getBugField(String bugId, String fieldId) throws BugzillaAPIException{
 		/*Object[] bugs = null;
 		try {
 			bugs = bug.getBugs("ids", new Object[] {bugId});
@@ -132,9 +132,9 @@ public class BzChecker {
 	 * @return
 	 * 	 	true (when bug is NOT in any of these states: ON_QA, VERIFIED, RELEASE_PENDING, POST, CLOSED)<br>
 	 * 		false (when IS in any one of these states: ON_QA, VERIFIED, RELEASE_PENDING, POST, CLOSED)<br>
-	 * @throws XmlRpcException - when the bug state cannot be determined.
+	 * @throws BugzillaAPIException - when the bug state cannot be determined.
 	 */
-	public boolean isBugOpen(String bugId) throws Exception {
+	public boolean isBugOpen(String bugId) throws BugzillaAPIException {
 		IBugzillaAPI.bzState state = getBugState(bugId);
 
 		for (IBugzillaAPI.bzState fixedBugState: fixedBugStates) {
