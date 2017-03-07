@@ -47,7 +47,7 @@ public class REST_API implements IBugzillaAPI {
 
 	public void connectBZ() throws BugzillaAPIException {
     try {
-      uri = new URI(System.getProperty("bugzilla.url") + "/rest");
+      uri = new URI(System.getProperty("bugzilla.url"));
       CredentialsProvider credsProvider = new BasicCredentialsProvider();
       credsProvider.setCredentials(AuthScope.ANY,
                                    new UsernamePasswordCredentials(System.getProperty("bugzilla.login"),
