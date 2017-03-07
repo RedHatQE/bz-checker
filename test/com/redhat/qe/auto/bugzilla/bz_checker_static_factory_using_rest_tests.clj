@@ -7,7 +7,6 @@
             [clojure.reflect :as r])
   (:import [com.redhat.qe.auto.bugzilla
             BzChecker
-            OldBzChecker
             IBugzillaAPI$bzState
             RESTModule]))
 
@@ -19,7 +18,7 @@
                       (f)))
 
 (deftest bz-checker-main-get-methods-test
-  (let [checker (OldBzChecker/getInstance (new RESTModule))]
+  (let [checker (BzChecker/getInstance (new RESTModule))]
     (is (= IBugzillaAPI$bzState/CLOSED (.getBugState checker "1")))
     (is (= "CLOSED" (.getBugField checker "1" "status")))
     (is (= "Bugzilla" (.getBugField checker "1" "product") ))

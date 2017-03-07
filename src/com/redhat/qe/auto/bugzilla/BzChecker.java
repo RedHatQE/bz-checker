@@ -12,6 +12,9 @@ import com.redhat.qe.auto.bugzilla.IBugzillaAPI;
 import com.redhat.qe.auto.bugzilla.BugzillaAPIException;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Guice;
+import com.google.inject.AbstractModule;
 
 /**
  * Example code to retrieve a bugzilla bug's status, given its ID.  This is for future use with testng,
@@ -34,10 +37,39 @@ public class BzChecker {
 			IBugzillaAPI.bzState.CLOSED };
 	protected static IBugzillaAPI.bzState[] fixedBugStates;
 
+  private static Injector injector = null;
+
   @Inject
   BzChecker(IBugzillaAPI bug){
     this.bug = bug;
     init();
+  }
+
+  /* An old version of using of Bz-Checker. Static factory */
+  public static BzChecker getInstance() {
+    if (injector == null){
+      injector = Guice.createInjector(new XMLRPCModule());
+    }
+    BzChecker checker = injector.getInstance(BzChecker.class);
+    return checker;
+  }
+
+  /* If you want to use internal injector with given Module */
+  public static BzChecker getInstance(AbstractModule module) {
+    if (injector == null){
+      injector = Guice.createInjector(module);
+    }
+    BzChecker checker = injector.getInstance(BzChecker.class);
+    return checker;
+  }
+
+  /* If you want to use an injector created sooner.
+     This way is the closest the way how to use injector properly.
+     - ie. Create injector at the very beginning of an application run
+       and use it everywhere.
+  */
+  public static BzChecker getInstance(Injector injector) {
+    return injector.getInstance(BzChecker.class);
   }
 
   private void init() {
