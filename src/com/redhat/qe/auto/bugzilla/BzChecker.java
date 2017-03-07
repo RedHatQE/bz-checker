@@ -48,7 +48,7 @@ public class BzChecker {
   /* An old version of using of Bz-Checker. Static factory */
   public static BzChecker getInstance() {
     if (injector == null){
-      injector = Guice.createInjector(new XMLRPCModule());
+      injector = Guice.createInjector(BzChecker.getInjectionModule());
     }
     BzChecker checker = injector.getInstance(BzChecker.class);
     return checker;
@@ -64,7 +64,7 @@ public class BzChecker {
   }
 
   /* If you want to use an injector created sooner.
-     This way is the closest the way how to use injector properly.
+     This way is the best the way how to use injector properly.
      - ie. Create injector at the very beginning of an application run
        and use it everywhere.
   */
@@ -83,11 +83,23 @@ public class BzChecker {
 			}
 			else fixedBugStates = defaultFixedBugStates;
 
-		} catch (Exception e){
+		} catch (Exception e) {
       String msg = "Could not initialize BzChecker. The original exception was: " + e.getMessage();
 			throw new RuntimeException(msg);
 		}
 	}
+
+  /*
+      The method decides from a property 'bugzilla.url' which module
+      will be used to create injector.
+  */
+  public static AbstractModule getInjectionModule() {
+    String url = System.getProperty("bugzilla.url");
+    if( url.toLowerCase().contains("/rest") ){
+      return new RESTModule();
+    }
+    return new XMLRPCModule();
+  }
 
 	public IBugzillaAPI.bzState getBugState(String bugId) throws BugzillaAPIException{
 		return IBugzillaAPI.bzState.valueOf(getBugField(bugId, "status").toString());
