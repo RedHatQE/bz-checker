@@ -27,7 +27,7 @@ import com.google.inject.AbstractModule;
 public class BzChecker {
 	protected static Logger log = Logger.getLogger(BzChecker.class.getName());
 
-  private final IBugzillaAPI bug;
+  private IBugzillaAPI bug;
 
 	protected static IBugzillaAPI.bzState[] defaultFixedBugStates = new IBugzillaAPI.bzState[] {
 			IBugzillaAPI.bzState.ON_QA,
@@ -83,8 +83,9 @@ public class BzChecker {
 			}
 			else fixedBugStates = defaultFixedBugStates;
 
-		}catch(Exception e){
-			throw new RuntimeException("Could not initialize BzChecker." ,e);
+		} catch (Exception e){
+      String msg = "Could not initialize BzChecker. The original exception was: " + e.getMessage();
+			throw new RuntimeException(msg);
 		}
 	}
 
@@ -185,3 +186,4 @@ public class BzChecker {
 		return list.toArray(new IBugzillaAPI.bzState[] {});
 	}
 }
+
