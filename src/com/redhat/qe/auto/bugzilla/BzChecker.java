@@ -46,7 +46,7 @@ public class BzChecker {
   }
 
   /* An old version of using of Bz-Checker. Static factory */
-  public static BzChecker getInstance() {
+  public static BzChecker getInstance() throws RuntimeException {
     if (injector == null){
       injector = Guice.createInjector(BzChecker.getInjectionModule());
     }
@@ -55,7 +55,7 @@ public class BzChecker {
   }
 
   /* If you want to use internal injector with given Module */
-  public static BzChecker getInstance(AbstractModule module) {
+  public static BzChecker getInstance(AbstractModule module) throws RuntimeException {
     if (injector == null){
       injector = Guice.createInjector(module);
     }
@@ -68,7 +68,7 @@ public class BzChecker {
      - ie. Create injector at the very beginning of an application run
        and use it everywhere.
   */
-  public static BzChecker getInstance(Injector injector) {
+  public static BzChecker getInstance(Injector injector) throws RuntimeException {
     return injector.getInstance(BzChecker.class);
   }
 

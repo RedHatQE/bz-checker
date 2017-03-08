@@ -9,6 +9,7 @@
 - new method `BzChecker.getInstance (injector)` is available
 - static factory `getInstance` decides which implementation of Bugzilla API will be used
 - a string "/rest" is not appended at the end of bugzilla url in the code anymore.
+- a static factory `BzChecker.getInstance` throws `RuntimeException` now
 
 ### Added
 - new static factory `getInstance(injector)`
