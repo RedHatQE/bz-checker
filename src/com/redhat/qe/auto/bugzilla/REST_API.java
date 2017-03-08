@@ -26,6 +26,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.util.stream.Stream;
+
 public class REST_API implements IBugzillaAPI {
 	protected static Logger log = Logger.getLogger(REST_API.class.getName());
 
@@ -37,6 +39,7 @@ public class REST_API implements IBugzillaAPI {
                                       "product",
                                       "keywords",
                                       "comments",
+                                      "summary",
                                       "qa_contact",
                                       "tags"};
 
@@ -80,9 +83,12 @@ public class REST_API implements IBugzillaAPI {
 
 	public Map<String, Object> getBug(String bugId) throws BugzillaAPIException {
     try {
-      URI newURI = new URI(uri.toString() + "/bug/" + bugId
-                           + "?api_key=" + System.getProperty("bugzilla.apikey")
-                           + "&include_fields=" + String.join(",", bugFields));
+      String url = Stream.of(uri.toString(),"/bug/",bugId,
+                             "?api_key=",System.getProperty("bugzilla.apikey"),
+                             "&include_fields=",String.join(",", bugFields))
+        .map(s -> s.trim())
+        .reduce((acc,s) -> acc + s).get();
+      URI newURI = new URI(url);
       if( System.getProperty("bugzilla.cache","false").equals("true")){
         Map<String,Object> bug = buglist.get(bugId);
         if(bug != null) {
@@ -116,14 +122,15 @@ public class REST_API implements IBugzillaAPI {
                       add((String)it.next());
                     }
                   }});
-						put("comments", new ArrayList<Object>() {
-							private static final long serialVersionUID = 1L;
-                {
-                  Iterator<Object> it = bugObj.getJSONArray("comments").iterator();
-                  while(it.hasNext()){
-                    add(parseComment((JSONObject)it.next()));
-                  }
-                }});
+              put("comments", new ArrayList<Object>() {
+                  private static final long serialVersionUID = 1L;
+                  {
+                    Iterator<Object> it = bugObj.getJSONArray("comments").iterator();
+                    while(it.hasNext()){
+                      add(parseComment((JSONObject)it.next()));
+                    }
+                  }});
+              put("summary", bugObj.getString("summary"));
             }};
         buglist.put(bugId,bug);
         return bug;
