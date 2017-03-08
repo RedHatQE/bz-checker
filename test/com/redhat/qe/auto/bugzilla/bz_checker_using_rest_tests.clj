@@ -26,4 +26,6 @@
     (is (= "bugzilla@redhat.com" (.getBugField checker "1" "qa_contact")))
     (is (= #{"Reopened" "TestCaseApproved" "TestCaseRejected"}
            (into #{} (.getBugField checker "1" "keywords"))))
-    (is (= false (.isBugOpen checker "1")))))
+    (is (= false (.isBugOpen checker "1")))
+    (is (= "rhel-x86_64-server-6-rhevh-beta channel maps are missing from channel-cert-mapping.txt"
+           (.getBugField checker "1418476" "summary")))))

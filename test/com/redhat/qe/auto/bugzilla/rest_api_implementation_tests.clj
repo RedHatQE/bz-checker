@@ -28,7 +28,8 @@
     (.connectBZ api)
     (let [bug (into {} (.getBug api "1"))
           bug-without-comments (dissoc bug "comments")]
-      (is (= {"status" "CLOSED"
+      (is (= {"summary" "please DO NOT use this bug for testing",
+              "status" "CLOSED"
               "product" "Bugzilla"
               "keywords" ["Reopened" "TestCaseApproved" "TestCaseRejected"]
               "qa_contact" "bugzilla@redhat.com"} bug-without-comments))
@@ -37,3 +38,15 @@
             commentary (first comments)]
         (is (= false (get commentary "is_private")))
         (is (= "test bug" (get commentary "text")))))))
+
+(deftest apikey-with-spaces-test
+  (System/setProperty "bugzilla.apikey" "8lQslYHupmiacJbcKNY9SnEcsw5wbgnoHGjxIb6s ")
+  (let [api (new REST_API)]
+    (.connectBZ api)
+    (let [bug (into {} (.getBug api "1275179"))])))
+
+(deftest summary-field-exists-test
+  (let [api (new REST_API)]
+    (.connectBZ api)
+    (let [bug (into {} (.getBug api "1418476"))]
+      (is (contains? bug "summary")))))
