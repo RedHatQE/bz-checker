@@ -13,3 +13,7 @@
 
 ### Added
 - new static factory `getInstance(injector)`
+
+### Fixed
+- a field `summary` is already available
+- REST api removes trailing spaces from all bugzilla related properties
