@@ -1,81 +1,111 @@
 package com.redhat.qe.auto.bugzilla;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.apache.xmlrpc.XmlRpcException;
 
-import com.redhat.qe.xmlrpc.BaseObject;
-import com.redhat.qe.xmlrpc.Session;
+import com.redhat.qe.auto.bugzilla.IBugzillaAPI;
+import com.redhat.qe.auto.bugzilla.BugzillaAPIException;
 
-
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Guice;
+import com.google.inject.AbstractModule;
 
 /**
- * Example code to retrieve a bugzilla bug's status, given its ID.  This is for future use with testng, 
+ * Example code to retrieve a bugzilla bug's status, given its ID.  This is for future use with testng,
  * so that testng can decide whether to execute a test, based on the group annotation (which may contain
  * a bug id), and the status of that bug.  If the status is ON_QA, for example, it can be tested.<br>
- * Example Usage: if (BzChecker.getInstance().getBugState("12345") == BzChecker.bzState.ON_QA) {...
+ * Example Usage: if (BzChecker.getInstance().getBugState("12345") == IBugzillaAPI.bzState.ON_QA) {...
  * @author weissj
  *
  */
-public class BzChecker {	
-	
-	public enum bzState { NEW, ASSIGNED, MODIFIED, ON_DEV, ON_QA, VERIFIED, FAILS_QA, RELEASE_PENDING, POST, CLOSED };
-	
+public class BzChecker {
 	protected static Logger log = Logger.getLogger(BzChecker.class.getName());
-	protected static Bug bug;
-	protected static bzState[] defaultFixedBugStates = new bzState[] {
-			BzChecker.bzState.ON_QA,
-			BzChecker.bzState.VERIFIED,
-			BzChecker.bzState.RELEASE_PENDING,
-			BzChecker.bzState.POST,
-			BzChecker.bzState.CLOSED };
-	protected static bzState[] fixedBugStates;
-	protected static BzChecker instance = null;
-	
-	private BzChecker() {		
-	}
-	
-	private synchronized void init() {
-		bug = new Bug();
+
+  private IBugzillaAPI bug;
+
+	protected static IBugzillaAPI.bzState[] defaultFixedBugStates = new IBugzillaAPI.bzState[] {
+			IBugzillaAPI.bzState.ON_QA,
+			IBugzillaAPI.bzState.VERIFIED,
+			IBugzillaAPI.bzState.RELEASE_PENDING,
+			IBugzillaAPI.bzState.POST,
+			IBugzillaAPI.bzState.CLOSED };
+	protected static IBugzillaAPI.bzState[] fixedBugStates;
+
+  private static Injector injector = null;
+
+  @Inject
+  BzChecker(IBugzillaAPI bug){
+    this.bug = bug;
+    init();
+  }
+
+  /* An old version of using of Bz-Checker. Static factory */
+  public static BzChecker getInstance() throws RuntimeException {
+    if (injector == null){
+      injector = Guice.createInjector(BzChecker.getInjectionModule());
+    }
+    BzChecker checker = injector.getInstance(BzChecker.class);
+    return checker;
+  }
+
+  /* If you want to use internal injector with given Module */
+  public static BzChecker getInstance(AbstractModule module) throws RuntimeException {
+    if (injector == null){
+      injector = Guice.createInjector(module);
+    }
+    BzChecker checker = injector.getInstance(BzChecker.class);
+    return checker;
+  }
+
+  /* If you want to use an injector created sooner.
+     This way is the best the way how to use injector properly.
+     - ie. Create injector at the very beginning of an application run
+       and use it everywhere.
+  */
+  public static BzChecker getInstance(Injector injector) throws RuntimeException {
+    return injector.getInstance(BzChecker.class);
+  }
+
+  private void init() {
 		try {
-			bug.connectBZ();
-			
+      bug.connectBZ();
+
 			//read in custom "fixed" bug states if any
 			String fixedStates = System.getProperty("bugzilla.fixedBugStates");
 			if (fixedStates != null && fixedStates.length() >0) {
 				fixedBugStates = extractStates(fixedStates);
 			}
 			else fixedBugStates = defaultFixedBugStates;
-			
-		}catch(Exception e){
-			throw new RuntimeException("Could not initialize BzChecker." ,e);
+
+		} catch (Exception e) {
+      String msg = "Could not initialize BzChecker. The original exception was: " + e.getMessage();
+			throw new RuntimeException(msg);
 		}
 	}
 
-	public static synchronized BzChecker getInstance(){
-		if (instance == null)	{
-			BzChecker newinst = new BzChecker();
-			newinst.init();
-			instance = newinst;  //if init() fails, don't set the instance
-		}
-		return instance;
+  /*
+      The method decides from a property 'bugzilla.url' which module
+      will be used to create injector.
+  */
+  public static AbstractModule getInjectionModule() {
+    String url = System.getProperty("bugzilla.url");
+    if( url.toLowerCase().contains("/rest") ){
+      return new RESTModule();
+    }
+    return new XMLRPCModule();
+  }
+
+	public IBugzillaAPI.bzState getBugState(String bugId) throws BugzillaAPIException{
+		return IBugzillaAPI.bzState.valueOf(getBugField(bugId, "status").toString());
 	}
-	
-	public bzState getBugState(String bugId) throws XmlRpcException{
-		return bzState.valueOf(getBugField(bugId, "status").toString());
-	}
-	
-	public Object getBugField(String bugId, String fieldId) throws XmlRpcException{
+
+	public Object getBugField(String bugId, String fieldId) throws BugzillaAPIException{
 		/*Object[] bugs = null;
 		try {
 			bugs = bug.getBugs("ids", new Object[] {bugId});
@@ -88,7 +118,7 @@ public class BzChecker {
 		else {
 			Object thisbug = bugs[0];
 			Map bmap = (Map)thisbug;
-			
+
 			log.finer("Found bug: " + thisbug.toString() );
 			Map internals = (Map)bmap.get("internals");
 			Object fieldValue = internals.get(fieldId);
@@ -97,8 +127,8 @@ public class BzChecker {
 		}*/
 		return bug.getBug(bugId).get(fieldId);
 	}
-	
-	public void setBugState(String bugId, bzState state) {
+
+	public void setBugState(String bugId, IBugzillaAPI.bzState state) {
 		try {
 			bug.update_bug_status(bugId, state);
 		}
@@ -114,23 +144,23 @@ public class BzChecker {
 			throw new RuntimeException("Could not log in to bugzilla as " + userid ,e);
 		}
 	}
-	
+
 	public void addComment(String bugId, String comment){
 		try {
 			bug.add_bug_comment(bugId, comment);
 		}
 		catch(Exception e){
 			throw new RuntimeException("Could not add comment to bug " + bugId ,e);
-		}	
+		}
 	}
-	
+
 	public void addKeywords(String bugId, String... keywords){
 		editKeywords(bugId, true, keywords);
 	}
 	public void deleteKeywords(String bugId, String... keywords){
 		editKeywords(bugId, true, keywords);
 	}
-	
+
 	protected void editKeywords(String bugId, boolean add, String... keywords){
 		try {
 			Map<String,Object> updates = new HashMap<String,Object>();
@@ -139,177 +169,33 @@ public class BzChecker {
 		}
 		catch(Exception e){
 			throw new RuntimeException("Could not " + (add? "add":"remove") + " keywords for bug " + bugId ,e);
-		}	
+		}
 	}
-	
+
 	/**
 	 * @param bugId
 	 * @return
 	 * 	 	true (when bug is NOT in any of these states: ON_QA, VERIFIED, RELEASE_PENDING, POST, CLOSED)<br>
 	 * 		false (when IS in any one of these states: ON_QA, VERIFIED, RELEASE_PENDING, POST, CLOSED)<br>
-	 * @throws XmlRpcException - when the bug state cannot be determined.
+	 * @throws BugzillaAPIException - when the bug state cannot be determined.
 	 */
-	public boolean isBugOpen(String bugId) throws XmlRpcException {
-		BzChecker.bzState state = getBugState(bugId);
-		
-		for (bzState fixedBugState: fixedBugStates) {
+	public boolean isBugOpen(String bugId) throws BugzillaAPIException {
+		IBugzillaAPI.bzState state = getBugState(bugId);
+
+		for (IBugzillaAPI.bzState fixedBugState: fixedBugStates) {
 			if (state.equals(fixedBugState)) return false;
 		}
 		return true;
 	}
-	
-	
-	protected bzState[] extractStates(String states) {
+
+
+	protected IBugzillaAPI.bzState[] extractStates(String states) {
 		String[] splits = states.split(",");
-		List<bzState> list = new ArrayList<bzState>();
+		List<IBugzillaAPI.bzState> list = new ArrayList<IBugzillaAPI.bzState>();
 		for (String state: splits) {
-			list.add(bzState.valueOf(state.trim().toUpperCase()));
+			list.add(IBugzillaAPI.bzState.valueOf(state.trim().toUpperCase()));
 		}
-		return list.toArray(new bzState[] {});
+		return list.toArray(new IBugzillaAPI.bzState[] {});
 	}
-	public class Bug extends BaseObject{
-		private String BZ_URL;
-        private Map<String,Map> buglist;
-		//private StringAttribute bug_status = newStringAttribute("bug_status", null);
-		
-		public Bug(){
-			listMethod = "Bug.get_bugs";
-            buglist = new HashMap<String,Map>();
-			//System.setProperty("bugzilla.url", "https://bugzilla.redhat.com/bugzilla/xmlrpc.cgi");
-			//System.setProperty("bugzilla.url", "https://bz-web2-test.devel.redhat.com/bugzilla/xmlrpc.cgi");
-		}
-		
-		protected void connectBZ() throws XmlRpcException, GeneralSecurityException, IOException{
-			BZ_URL = System.getProperty("bugzilla.url");
-			session = new Session(System.getProperty("bugzilla.login"), System.getProperty("bugzilla.password"), new URL(BZ_URL));
-			
-			session.init();
-			// initiate a login here because some bugzilla projects (e.g. Cloud Enablement Tools) are not anonymously
-			// readable which will result in org.apache.xmlrpc.XmlRpcException: You are not authorized to access bug #
-			// when calling lookupBugAndSkipIfOpen.  For reliability, we need to login.  jsefler 3/16/09
-			login(System.getProperty("bugzilla.login"), System.getProperty("bugzilla.password"));
-			
-		}
-		
-		public int login(String userid, String password) throws XmlRpcException{
-			Map<String,Object> main = new HashMap<String,Object>();
-			main.put("login", userid);
-			main.put("password", password);
-			Map map = (Map) this.callXmlrpcMethod("User.login", main);
-			return (Integer)map.get("id");
-		}
-		
-		public Map<String, Object> getBug(String bugId) throws XmlRpcException{
-            Map bug = null;
-            if ( System.getProperty("bugzilla.cache", "false").equals( "true" ) ) {
-                bug = buglist.get(bugId);
-                if (bug!=null) log.finer("Using cached bugzilla "+bugId);
-            }
-            if ( bug == null ) {
-                Map<String,Object> ids = new HashMap<String,Object>();
-                ids.put("ids", bugId);
-                Map map = (Map) this.callXmlrpcMethod("Bug.get", ids);
-                Object[] oarray = (Object[])map.get("bugs");
-                bug = (Map)oarray[0];
-                buglist.put(bugId,bug);
-            }
-            return (Map) bug;
-		}
-		
-		/*
-		 * Returns a Map containing an Array of Maps.  Within the innermost Maps (which represent bugs), there's another
-		 * Map under the key "internals", which has a key "bug_status".  ugh.
-		 */
-		public Object[] getBugs(Map<String, Object> values) throws XmlRpcException
-		{
-			//some Testopia objects have no listing mechanism
-			if(listMethod == null)
-				return null;
-			
-			Map map = (Map) this.callXmlrpcMethod(listMethod, values);
-			return (Object[])map.get("bugs");
-			//return result;
-		}
-	
-		public Object[] getBugs(String name, Object value) throws XmlRpcException {
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put(name, value);
-			return getBugs(map);
-		}
-		
-		
-		public Map update_bug_status(String bug_id, bzState newState) throws XmlRpcException{
-			Map<String,Object> updates = new HashMap<String,Object>();
-			updates.put("bug_status", newState.toString());
-			return update_bug(bug_id, updates);
-		}
-		
-		protected Map update_bug(String bug_id, Map<String,Object> updates)throws XmlRpcException{
-			Map<String,Object> main = new HashMap<String,Object>(); 
-			main.put("updates", updates);
-			main.put("ids", Integer.parseInt(bug_id));
-			Map map = (Map) this.callXmlrpcMethod("Bug.update", main);
-			
-			//System.out.println(map);
-			return map;
-		}
-		
-		public Map add_bug_comment(String bug_id, String comment) throws XmlRpcException{
-			Map<String,Object> main = new HashMap<String,Object>(); 
-
-			main.put("id", Integer.parseInt(bug_id));
-			main.put("comment", comment);
-			Map map = (Map) this.callXmlrpcMethod("Bug.add_comment", main);
-			//Map map = (Map) this.callXmlrpcMethod("bug.add_comment", Integer.parseInt(bug_id), comment);
-			
-			//System.out.println(map);
-			return map;
-		}
-		
-	}
-	
-	public static void main(String[] args) throws Exception{
-		
-		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
-		System.setProperty("org.apache", "debug");
-
-		System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "debug");
-		try {
-			LogManager.getLogManager().readConfiguration(new FileInputStream("/home/jweiss/log.properties"));
-		}catch(Exception e){
-			System.err.println("Unable to read log config file.");
-		}
-		Properties p = new Properties();
-		p.load(new FileInputStream("/home/jweiss/automation.properties"));
-		for (Object key: p.keySet()){
-			System.setProperty((String)key, p.getProperty((String)(key)));
-		}
-		log.info("connecting to " + p.getProperty("bugzilla.url"));
-		/*Bug myBug = new BzChecker().new Bug();
-		//List<>
-		myBug.connectBZ();
-		List<String> ids = new ArrayList<String>();
-		ids.add("497793");
-		Object[] bugs = myBug.getBugs("ids",ids);
-		for( Object bug: bugs){
-			Map bmap = (Map)bug;
-			
-			log.info("Found bug: " + bug.toString() );
-			Map internals = (Map)bmap.get("internals");
-			log.info("Bug status is " + internals.get("bug_status"));
-		}*/
-		log.info("Starting");
-		BzChecker checker = BzChecker.getInstance();
-		log.info("initialized.");
-		//String id = "497793";
-		//log.info("State of " + id + " is " + checker.getBugState(id));
-		//checker.login("jweiss@redhat.com", System.getProperty("bugzilla.password"));
-		//checker.addComment("470058", "test comment");
-		//checker.setBugState("470058", bzState.ON_QA);
-		//checker.addKeywords("470058", "AutoVerified");
-		log.info("Keywords: " + checker.getBugField("470058","keywords"));
-		log.info(""+checker.getBugState("571833"));
-		
-	}
-
 }
+
