@@ -1,6 +1,10 @@
 BzChecker is a small utility that helps us to communicate with Bugzilla.
 It uses Google Guice injection.
 
+# Requirements
+
+  - java 8
+  
 # How to run tests with clojure `boot`
 
 * install `boot.sh`  http://boot-clj.com/
