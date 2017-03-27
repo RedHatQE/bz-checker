@@ -8,8 +8,11 @@
 - `OldBzChecker` is joined with `BzChecker`
 - new method `BzChecker.getInstance (injector)` is available
 - static factory `getInstance` decides which implementation of Bugzilla API will be used
+  - if the property `bugzilla.url` contains of a string `rest` it uses REST API automatically
 - a string "/rest" is not appended at the end of bugzilla url in the code anymore.
 - a static factory `BzChecker.getInstance` throws `RuntimeException` now
+- new property `bugzilla.apikey` has been added. You can use key to authorize 
+  an access to REST API of bugzilla
 
 ### Added
 - new static factory `getInstance(injector)`
