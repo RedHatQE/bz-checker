@@ -3,7 +3,6 @@
             [clojure.java.io :as io]
             [clojurewerkz.propertied.properties :as p]
             [clojure.java.io :as io]
-            [spyscope.core :refer :all]
             [clojure.reflect :as r])
   (:import [com.redhat.qe.auto.bugzilla
             BzChecker

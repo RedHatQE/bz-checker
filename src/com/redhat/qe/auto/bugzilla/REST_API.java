@@ -1,3 +1,4 @@
+/* -*- c-basic-offset: 2; indent-tab-mode: nil -*- */
 package com.redhat.qe.auto.bugzilla;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import java.io.IOException;
-
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -18,15 +19,17 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.CloseableHttpResponse;
-
+import org.apache.http.client.methods.RequestBuilder;
 import com.redhat.qe.auto.bugzilla.IBugzillaAPI;
 import com.redhat.qe.auto.bugzilla.BugzillaAPIException;
+import org.apache.http.client.methods.HttpUriRequest;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.util.stream.Stream;
+import java.util.function.Supplier;
 
 public class REST_API implements IBugzillaAPI {
 	protected static Logger log = Logger.getLogger(REST_API.class.getName());
@@ -48,15 +51,11 @@ public class REST_API implements IBugzillaAPI {
     buglist = new HashMap<String, Map<String,Object> >();
   }
 
-	public void connectBZ() throws BugzillaAPIException {
+  public void connectBZ() throws BugzillaAPIException {
     try {
       uri = new URI(System.getProperty("bugzilla.url"));
-      CredentialsProvider credsProvider = new BasicCredentialsProvider();
-      credsProvider.setCredentials(AuthScope.ANY,
-                                   new UsernamePasswordCredentials(System.getProperty("bugzilla.login"),
-                                                                   System.getProperty("bugzilla.password")));
       httpclient = HttpClients.custom()
-        .setDefaultCredentialsProvider(credsProvider)
+        //.setDefaultCredentialsProvider(credsProvider)
         .build();
     } catch (URISyntaxException ex) {
       throw new BugzillaAPIException(ex.toString());
@@ -69,8 +68,8 @@ public class REST_API implements IBugzillaAPI {
   }
 
   protected Map<String,Object> parseComment(JSONObject commentObj) {
-		return new HashMap<String, Object>() {
-				private static final long serialVersionUID = -7353628974554585200L;
+    return new HashMap<String, Object>() {
+      private static final long serialVersionUID = -7353628974554585200L;
       {
         Iterator<String> it = commentObj.keys();
         while(it.hasNext()){
@@ -81,11 +80,11 @@ public class REST_API implements IBugzillaAPI {
   }
 
 
-	public Map<String, Object> getBug(String bugId) throws BugzillaAPIException {
+  public Map<String, Object> getBug(String bugId) throws BugzillaAPIException {
     try {
       String url = Stream.of(uri.toString(),"/bug/",bugId,
-                             "?api_key=",System.getProperty("bugzilla.apikey"),
-                             "&include_fields=",String.join(",", bugFields))
+                             //"?api_key=",System.getProperty("bugzilla.apikey"),
+                             "?include_fields=",String.join(",", bugFields))
         .map(s -> s.trim())
         .reduce((acc,s) -> acc + s).get();
       URI newURI = new URI(url);
@@ -98,16 +97,34 @@ public class REST_API implements IBugzillaAPI {
       }
       CloseableHttpResponse response = null;
       try {
-        response = httpclient.execute(new HttpGet(newURI.normalize()));
+	HttpUriRequest request = RequestBuilder.get()
+	  .setUri(newURI.normalize())
+	  .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + System.getProperty("bugzilla.apikey"))
+	  .build();
+        response = httpclient.execute(request);
         if(response.getStatusLine().getStatusCode() != 200){
-          throw new BugzillaAPIException("Wrong status code returned. The status line was: "
-                                + response.getStatusLine());
+          throw new BugzillaAPIException("Wrong status code returned. The response: "
+					 + response.toString());
         };
         JSONTokener tokener = new JSONTokener(response.getEntity().getContent());
         JSONObject root = new JSONObject(tokener);
+	/* {"code":32000,
+	   "documentation":"https://bugzilla.stage.redhat.com/docs/en/html/api/index.html",
+	   "message":"You have attempted to access the API either using an unsupported method or using one or more unsupported parameters. You must use the 'Authorization' header to authenticate to the API and you must remove all unsupported parameters from the query. The unsupported parameters are: Bugzilla_login, Bugzilla_password, Bugzilla_token, Bugzilla_api_key. See https://bugzilla.stage.redhat.com/docs/en/html/api/core/v1/general.html#authentication for details on using the 'Authorization' header.",
+	   "error":true}
+	*/
+	/* assert that no error appears in the response */
+	Object error = root.opt("error");
+	if(error != null){
+	  Boolean errorCode = (Boolean) error;
+	  if( errorCode ){
+	    throw new BugzillaAPIException("An error appeared in REST response. The response: "
+					   + root.toString());
+	  };
+	};
         JSONArray bugs = (JSONArray) root.get("bugs");
         JSONObject bugObj = (JSONObject) bugs.get(0);
-				Map<String, Object> bug = new HashMap<String, Object>() {
+	Map<String, Object> bug = new HashMap<String, Object>() {
             private static final long serialVersionUID = 1L;
             {
               put("status",bugObj.getString("status"));
@@ -137,11 +154,11 @@ public class REST_API implements IBugzillaAPI {
       } catch (IOException ex) {
         throw new BugzillaAPIException(ex.toString());
       } finally {
-				try {
-					response.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+	try {
+	  response.close();
+	} catch (IOException e) {
+	  e.printStackTrace();
+	}
       }
     } catch (URISyntaxException ex) {
       throw new BugzillaAPIException(ex.toString());

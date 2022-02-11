@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.1-SNAPSHOT - 2022-01-12
+
+### Changed
+- removed BasicCredentials from REST_API implementation
+- added Header Authorization in replace of URL based api argument
+- apikey was removed from url for GET method
+- upgraded all libraries to the newest versions
+
 ## 2.1.3-SNAPSHOT - 2017-02-22
 
 ### Changed
