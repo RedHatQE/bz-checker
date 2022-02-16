@@ -20,9 +20,6 @@
                       (reset! injector (Guice/createInjector [(new RESTModule)]))
                       (f)))
 
-(deftest credentials-test
-  (is (= "rhq-xmlrpc@redhat.com" (System/getProperty "bugzilla.login"))))
-
 (deftest get-bug-test
   (let [api (new REST_API)]
     (.connectBZ api)
@@ -32,7 +29,7 @@
               "status" "CLOSED"
               "product" "Bugzilla"
               "keywords" ["Reopened" "TestCaseApproved" "TestCaseRejected"]
-              "qa_contact" "bugzilla@redhat.com"} bug-without-comments))
+              "qa_contact" "nobody@redhat.com"} bug-without-comments))
 
       (let [comments (get bug "comments")
             commentary (first comments)]
@@ -40,10 +37,17 @@
         (is (= "test bug" (get commentary "text")))))))
 
 (deftest apikey-with-spaces-test
-  (System/setProperty "bugzilla.apikey" "8lQslYHupmiacJbcKNY9SnEcsw5wbgnoHGjxIb6s ")
-  (let [api (new REST_API)]
-    (.connectBZ api)
-    (let [bug (into {} (.getBug api "1275179"))])))
+  (let [originalBugzillaApikey (System/getProperty "bugzilla.apikey")]
+    (System/setProperty "bugzilla.apikey" (str originalBugzillaApikey " "))
+    (let [api (new REST_API)]
+      (.connectBZ api)
+      (let [bug (into {} (.getBug api "1275179"))
+            bug-without-comments (dissoc bug "comments")]
+      (is (= {"summary" "subscription-manager attach --quantity 2 without --pool option auto-attaches the subscription",
+              "status" "CLOSED"
+              "product" "Red Hat Enterprise Linux 6"
+              "keywords" ["Reopened" "Triaged"]
+              "qa_contact" "jsefler@redhat.com"} bug-without-comments))))))
 
 (deftest summary-field-exists-test
   (let [api (new REST_API)]
